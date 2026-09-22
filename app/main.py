@@ -89,12 +89,57 @@ def optimize(req: OptimizeRequest):
     names = [s.security_name or SECURITY_MASTER.get(s.ticker, s.ticker) for s in req.securities]
     current_w = np.array([s.current_weight / 100.0 for s in req.securities], dtype=float)
 
-    # Align all return histories to the trailing common window (funds often
-    # have different inception dates). Truncating from the front keeps dates aligned.
-    min_len = min(len(s.returns) for s in req.securities)
-    R = np.column_stack([np.asarray(s.returns[-min_len:], dtype=float) for s in req.securities])
+    # Align return histories. If every security carries dates, intersect on the
+    # calendar; otherwise fall back to the trailing common window (funds often
+    # have different inception dates, so truncating from the front keeps them
+    # roughly aligned when dates are not supplied).
+    window: list[str] | None = None
+    if all(s.dates is not None for s in req.securities):
+        common = set(req.securities[0].dates or [])
+        for s in req.securities[1:]:
+            common &= set(s.dates or [])
+        window = sorted(common)
+        if len(window) < 2:
+            raise HTTPException(
+                status_code=400,
+                detail="securities share fewer than 2 common dates; cannot optimize",
+            )
+        cols = []
+        for s in req.securities:
+            pos = {d: i for i, d in enumerate(s.dates or [])}
+            cols.append(np.asarray([s.returns[pos[d]] for d in window], dtype=float))
+        R = np.column_stack(cols)
+    else:
+        min_len = min(len(s.returns) for s in req.securities)
+        R = np.column_stack(
+            [np.asarray(s.returns[-min_len:], dtype=float) for s in req.securities]
+        )
     if not np.isfinite(R).all():
         raise HTTPException(status_code=400, detail="returns must all be finite numbers")
+
+    def _factor_window() -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+        """(R, momentum, value, size) on the portfolio/factor date overlap.
+
+        Without dates we hand the full arrays to app.factors, which falls back to
+        trailing-window alignment. With dates we intersect properly - the factor
+        calendar can end on a different day than the funds, and aligning by
+        position would silently pair mismatched observations.
+        """
+        fd = req.factor_data
+        mom = np.asarray(fd.momentum, dtype=float)
+        val = np.asarray(fd.value, dtype=float)
+        siz = np.asarray(fd.size, dtype=float)
+        if window is None or not fd.dates:
+            return R, mom, val, siz
+        fpos = {d: i for i, d in enumerate(fd.dates)}
+        rows = [i for i, d in enumerate(window) if d in fpos]
+        if len(rows) < 2:
+            raise HTTPException(
+                status_code=400,
+                detail="factor_data.dates overlaps the securities on fewer than 2 dates",
+            )
+        cols = [fpos[window[i]] for i in rows]
+        return R[rows, :], mom[cols], val[cols], siz[cols]
 
     c = req.constraints
     try:
@@ -169,15 +214,12 @@ def optimize(req: OptimizeRequest):
                     "(momentum, value, size return series)",
                 )
             obj = req.factor_objective
+            R_f, mom, val, siz = _factor_window()
             w = factor_exposure_weights(
-                R,
+                R_f,
                 bounds,
                 extra,
-                {
-                    "momentum": np.asarray(req.factor_data.momentum),
-                    "value": np.asarray(req.factor_data.value),
-                    "size": np.asarray(req.factor_data.size),
-                },
+                {"momentum": mom, "value": val, "size": siz},
                 target_factor=(obj.factor if obj else "momentum"),
                 direction=(obj.direction if obj else "maximize"),
             )
@@ -218,21 +260,10 @@ def optimize(req: OptimizeRequest):
 
     factor_out = None
     if req.factor_data is not None:
-        cur_series = R @ current_w
-        opt_series = R @ w
+        R_f, mom, val, siz = _factor_window()
         factor_out = {
-            "current_portfolio": factor_betas(
-                cur_series,
-                np.asarray(req.factor_data.momentum),
-                np.asarray(req.factor_data.value),
-                np.asarray(req.factor_data.size),
-            ),
-            "optimized_portfolio": factor_betas(
-                opt_series,
-                np.asarray(req.factor_data.momentum),
-                np.asarray(req.factor_data.value),
-                np.asarray(req.factor_data.size),
-            ),
+            "current_portfolio": factor_betas(R_f @ current_w, mom, val, siz),
+            "optimized_portfolio": factor_betas(R_f @ w, mom, val, siz),
         }
 
     return OptimizeResponse(

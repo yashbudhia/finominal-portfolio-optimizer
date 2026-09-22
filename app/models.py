@@ -14,6 +14,12 @@ class SecurityInput(BaseModel):
     returns: List[float] = Field(
         ..., description="Periodic historical returns as decimals (0.01 == 1%)"
     )
+    dates: Optional[List[str]] = Field(
+        None,
+        description="Optional ISO dates matching `returns`. When supplied for every "
+        "security, histories are aligned by date instead of by trailing position, "
+        "which matters when calendars differ.",
+    )
     dividend_yield: Optional[float] = Field(
         None, description="Dividend yield in percent (e.g. 2.5 == 2.5%)"
     )
@@ -26,17 +32,38 @@ class SecurityInput(BaseModel):
             raise ValueError("ticker must be non-empty")
         return v
 
+    @model_validator(mode="after")
+    def _dates_match(self) -> "SecurityInput":
+        if self.dates is not None and len(self.dates) != len(self.returns):
+            raise ValueError(
+                f"{self.ticker}: dates has {len(self.dates)} entries but returns has "
+                f"{len(self.returns)}"
+            )
+        return self
+
 
 class FactorData(BaseModel):
     momentum: List[float]
     value: List[float]
     size: List[float]
+    dates: Optional[List[str]] = Field(
+        None,
+        description="Optional ISO dates matching the factor series. When supplied "
+        "alongside security dates, betas are computed on the true date overlap.",
+    )
 
     @model_validator(mode="after")
     def _nonempty(self) -> "FactorData":
         for k in ("momentum", "value", "size"):
             if len(getattr(self, k)) == 0:
                 raise ValueError(f"factor_data.{k} must be non-empty")
+        n = len(self.momentum)
+        if not (len(self.value) == len(self.size) == n):
+            raise ValueError("factor_data series must all be the same length")
+        if self.dates is not None and len(self.dates) != n:
+            raise ValueError(
+                f"factor_data.dates has {len(self.dates)} entries but series have {n}"
+            )
         return self
 
 

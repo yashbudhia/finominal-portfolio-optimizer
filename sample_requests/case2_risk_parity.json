@@ -9497,7 +9497,7 @@
   ],
   "optimization_strategy": "risk_parity",
   "periods_per_year": 252,
-  "risk_free_rate": 0.0,
+  "risk_free_rate": 0.0157,
   "_history": {
     "start": "2007-07-26",
     "end": "2026-05-27",

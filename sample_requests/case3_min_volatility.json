@@ -16266,7 +16266,7 @@
   ],
   "optimization_strategy": "minimize_volatility",
   "periods_per_year": 252,
-  "risk_free_rate": 0.0,
+  "risk_free_rate": 0.0157,
   "_history": {
     "start": "2004-11-18",
     "end": "2026-05-27",

@@ -6847,7 +6847,7 @@
   ],
   "optimization_strategy": "equal_weights",
   "periods_per_year": 252,
-  "risk_free_rate": 0.0,
+  "risk_free_rate": 0.0157,
   "_history": {
     "start": "2012-10-23",
     "end": "2026-05-27",

@@ -1,0 +1,52 @@
+{
+  "optimization_strategy": "minimize_volatility",
+  "allocation_changes": [
+    {
+      "ticker": "SPY",
+      "security_name": "State Street SPDR S&P 500 ETF Trust",
+      "current_weight": 60.0,
+      "optimized_weight": 6.92,
+      "change": -53.08
+    },
+    {
+      "ticker": "AGG",
+      "security_name": "iShares Core US Aggregate Bond ETF",
+      "current_weight": 30.0,
+      "optimized_weight": 91.21,
+      "change": 61.21
+    },
+    {
+      "ticker": "GLD",
+      "security_name": "SPDR Gold Shares",
+      "current_weight": 10.0,
+      "optimized_weight": 1.87,
+      "change": -8.13
+    }
+  ],
+  "current_portfolio": {
+    "cagr": 9.18,
+    "volatility": 11.75,
+    "max_drawdown": 33.66,
+    "sharpe_ratio": 0.6725,
+    "dividend_yield": 1.78
+  },
+  "optimized_portfolio": {
+    "cagr": 3.87,
+    "volatility": 5.01,
+    "max_drawdown": 17.39,
+    "sharpe_ratio": 0.4705,
+    "dividend_yield": 3.69
+  },
+  "factor_betas": {
+    "current_portfolio": {
+      "momentum": 0.06388957922536936,
+      "value": 0.16242190975787157,
+      "size": -0.14916729776079068
+    },
+    "optimized_portfolio": {
+      "momentum": 0.008539032324278426,
+      "value": -0.0076655451187889944,
+      "size": -0.050947373814106675
+    }
+  }
+}

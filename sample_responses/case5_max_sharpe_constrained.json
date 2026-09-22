@@ -1,0 +1,66 @@
+{
+  "optimization_strategy": "maximize_sharpe_ratio",
+  "allocation_changes": [
+    {
+      "ticker": "IEFA",
+      "security_name": "iShares Core MSCI EAFE ETF",
+      "current_weight": 20.0,
+      "optimized_weight": 13.76,
+      "change": -6.24
+    },
+    {
+      "ticker": "GLD",
+      "security_name": "SPDR Gold Shares",
+      "current_weight": 20.0,
+      "optimized_weight": 5.0,
+      "change": -15.0
+    },
+    {
+      "ticker": "AGG",
+      "security_name": "iShares Core US Aggregate Bond ETF",
+      "current_weight": 20.0,
+      "optimized_weight": 40.0,
+      "change": 20.0
+    },
+    {
+      "ticker": "VEA",
+      "security_name": "Vanguard Developed Markets Index Fund;ETF",
+      "current_weight": 20.0,
+      "optimized_weight": 5.0,
+      "change": -15.0
+    },
+    {
+      "ticker": "SPY",
+      "security_name": "State Street SPDR S&P 500 ETF Trust",
+      "current_weight": 20.0,
+      "optimized_weight": 36.24,
+      "change": 16.24
+    }
+  ],
+  "current_portfolio": {
+    "cagr": 8.67,
+    "volatility": 10.87,
+    "max_drawdown": 22.28,
+    "sharpe_ratio": 0.6751,
+    "dividend_yield": 2.05
+  },
+  "optimized_portfolio": {
+    "cagr": 8.41,
+    "volatility": 9.48,
+    "max_drawdown": 20.56,
+    "sharpe_ratio": 0.7342,
+    "dividend_yield": 2.5
+  },
+  "factor_betas": {
+    "current_portfolio": {
+      "momentum": 0.13157439837643387,
+      "value": 0.16513838701996056,
+      "size": -0.05760774676787522
+    },
+    "optimized_portfolio": {
+      "momentum": 0.09728557623932625,
+      "value": 0.12128132619745365,
+      "size": -0.08622271171434821
+    }
+  }
+}

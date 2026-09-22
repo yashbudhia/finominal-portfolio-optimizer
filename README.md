@@ -249,6 +249,21 @@ this case ("not expected to match the live tool exactly... the goal is to show
 a clear approach"). The differing current-portfolio betas for the *identical*
 equal-weight portfolio isolate the model difference from the optimization.
 
+### Committed API responses
+
+The full JSON response for every scenario is checked in under
+`sample_responses/`, so the results can be inspected without running anything:
+
+```
+sample_responses/case1_equal_weights.json          ... case6_factor_momentum.json
+sample_responses/error_unsupported_strategy.json          HTTP 400
+sample_responses/error_infeasible_constraints.json        HTTP 422
+sample_responses/error_unknown_ticker_in_constraints.json HTTP 400
+```
+
+Regenerate with `python scripts/capture_responses.py`. Live-tool screenshots are
+in `screenshots/`.
+
 ### Reproducing
 
 ```bash
@@ -270,10 +285,23 @@ app/optimizer.py   6 strategies (scipy SLSQP) + constraint builders
 app/metrics.py     CAGR / vol / max-DD / Sharpe / covariance
 app/factors.py     OLS betas + linear loading matrix C
 data/              Data.xlsx (assignment data) + load_excel.py parser
-sample_requests/   case1..case6 JSON + build_cases.py
+sample_requests/   case1..case6 request bodies + build_cases.py + uploads/*.xlsx
+sample_responses/  committed API responses for all 6 cases + the 400/422 paths
+screenshots/       live-tool screenshots
 tests/             acceptance tests (sums, bounds, case 5/6 rules, 400/422)
-scripts/validate.py  live-server validator for screenshots
+scripts/validate.py          live-server validator
+scripts/capture_responses.py regenerates sample_responses/
 ```
+
+## Submission checklist
+
+- [x] Public GitHub repo with source + `README.md`
+- [x] All 6 required scenarios run and compared against the live tool
+- [x] API responses for every scenario committed (`sample_responses/`)
+- [x] Error paths evidenced (400 unsupported strategy, 400 unknown ticker, 422 infeasible)
+- [x] 15 unit tests passing (`python -m pytest tests -q`)
+- [ ] Live-tool screenshots added to `screenshots/`
+- [ ] 3–5 min Loom walkthrough
 
 ## Assumptions / trade-offs
 
@@ -296,10 +324,3 @@ scripts/validate.py  live-server validator for screenshots
   portfolio yield. The live tool excludes zero-yield funds from its *displayed*
   yield but includes them in the *constraint*, which is the behavior implemented
   here.
-
-## Submission checklist
-
-- [ ] `pip install -r requirements.txt` + `uvicorn app.main:app` screenshot
-- [ ] `curl` outputs for ≥3 strategies
-- [ ] Live-tool screenshots for the 6 cases
-- [ ] 3–5 min Loom: code walkthrough, decisions, shortcuts

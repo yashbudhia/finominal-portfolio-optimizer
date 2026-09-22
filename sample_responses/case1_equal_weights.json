@@ -1,0 +1,45 @@
+{
+  "optimization_strategy": "equal_weights",
+  "allocation_changes": [
+    {
+      "ticker": "IEFA",
+      "security_name": "iShares Core MSCI EAFE ETF",
+      "current_weight": 25.0,
+      "optimized_weight": 50.0,
+      "change": 25.0
+    },
+    {
+      "ticker": "SPY",
+      "security_name": "State Street SPDR S&P 500 ETF Trust",
+      "current_weight": 75.0,
+      "optimized_weight": 50.0,
+      "change": -25.0
+    }
+  ],
+  "current_portfolio": {
+    "cagr": 13.39,
+    "volatility": 16.26,
+    "max_drawdown": 33.6,
+    "sharpe_ratio": 0.7579,
+    "dividend_yield": 1.56
+  },
+  "optimized_portfolio": {
+    "cagr": 11.75,
+    "volatility": 16.05,
+    "max_drawdown": 33.69,
+    "sharpe_ratio": 0.6753,
+    "dividend_yield": 2.13
+  },
+  "factor_betas": {
+    "current_portfolio": {
+      "momentum": 0.17235471779978082,
+      "value": 0.2437879051489948,
+      "size": -0.17140379035850528
+    },
+    "optimized_portfolio": {
+      "momentum": 0.17142228117738006,
+      "value": 0.27587994803060245,
+      "size": -0.13467759473085053
+    }
+  }
+}

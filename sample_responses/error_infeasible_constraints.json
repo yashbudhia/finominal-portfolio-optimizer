@@ -1,0 +1,32 @@
+{
+  "request": {
+    "securities": [
+      {
+        "ticker": "SPY",
+        "current_weight": 50,
+        "returns": [
+          0.01,
+          -0.01
+        ],
+        "dividend_yield": 0.99
+      },
+      {
+        "ticker": "AGG",
+        "current_weight": 50,
+        "returns": [
+          0.002,
+          0.003
+        ],
+        "dividend_yield": 3.97
+      }
+    ],
+    "optimization_strategy": "maximize_sharpe_ratio",
+    "constraints": {
+      "min_dividend_yield": 99
+    }
+  },
+  "http_status": 422,
+  "response": {
+    "detail": "optimization failed: constraints may be infeasible - try relaxing min/max weights or portfolio-level constraints"
+  }
+}

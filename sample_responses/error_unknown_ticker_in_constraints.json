@@ -1,0 +1,32 @@
+{
+  "request": {
+    "securities": [
+      {
+        "ticker": "SPY",
+        "current_weight": 50,
+        "returns": [
+          0.01,
+          -0.01
+        ]
+      },
+      {
+        "ticker": "AGG",
+        "current_weight": 50,
+        "returns": [
+          0.002,
+          0.003
+        ]
+      }
+    ],
+    "optimization_strategy": "minimize_volatility",
+    "constraints": {
+      "min_weights": {
+        "SYP": 10
+      }
+    }
+  },
+  "http_status": 400,
+  "response": {
+    "detail": "constraints.min_weights has unknown tickers ['SYP'] (request tickers: ['SPY', 'AGG'])"
+  }
+}

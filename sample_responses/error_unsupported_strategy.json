@@ -1,0 +1,19 @@
+{
+  "request": {
+    "securities": [
+      {
+        "ticker": "SPY",
+        "current_weight": 100,
+        "returns": [
+          0.01,
+          -0.01
+        ]
+      }
+    ],
+    "optimization_strategy": "maximize_vibes"
+  },
+  "http_status": 400,
+  "response": {
+    "detail": "unsupported optimization_strategy 'maximize_vibes'. Supported: ['equal_weights', 'maximize_sharpe_ratio', 'minimize_drawdown', 'minimize_volatility', 'optimize_factor_exposure', 'risk_parity']"
+  }
+}

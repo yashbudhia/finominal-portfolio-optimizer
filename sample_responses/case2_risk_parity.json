@@ -1,0 +1,45 @@
+{
+  "optimization_strategy": "risk_parity",
+  "allocation_changes": [
+    {
+      "ticker": "VEA",
+      "security_name": "Vanguard Developed Markets Index Fund;ETF",
+      "current_weight": 25.0,
+      "optimized_weight": 20.12,
+      "change": -4.88
+    },
+    {
+      "ticker": "AGG",
+      "security_name": "iShares Core US Aggregate Bond ETF",
+      "current_weight": 75.0,
+      "optimized_weight": 79.88,
+      "change": 4.88
+    }
+  ],
+  "current_portfolio": {
+    "cagr": 4.09,
+    "volatility": 6.89,
+    "max_drawdown": 20.95,
+    "sharpe_ratio": 0.3889,
+    "dividend_yield": 3.49
+  },
+  "optimized_portfolio": {
+    "cagr": 3.92,
+    "volatility": 6.26,
+    "max_drawdown": 19.5,
+    "sharpe_ratio": 0.3943,
+    "dividend_yield": 3.58
+  },
+  "factor_betas": {
+    "current_portfolio": {
+      "momentum": 0.020038232457875838,
+      "value": 0.08090092128725472,
+      "size": -0.07446834552170914
+    },
+    "optimized_portfolio": {
+      "momentum": 0.015987959365777647,
+      "value": 0.05905280632157371,
+      "size": -0.06725135377447324
+    }
+  }
+}

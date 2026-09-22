@@ -2,7 +2,7 @@
   "securities": [
     {
       "ticker": "VEA",
-      "security_name": "Vanguard FTSE Developed Markets ETF",
+      "security_name": "Vanguard Developed Markets Index Fund;ETF",
       "current_weight": 25,
       "returns": [
         0.009089816823748464,
@@ -126,7 +126,7 @@
         0.025264219991754558,
         0.05405075641945216
       ],
-      "dividend_yield": 2.9
+      "dividend_yield": 2.03
     },
     {
       "ticker": "AGG",
@@ -254,7 +254,7 @@
         0.0124294990055728,
         0.008137422515605749
       ],
-      "dividend_yield": 3.2
+      "dividend_yield": 3.97
     }
   ],
   "optimization_strategy": "risk_parity",

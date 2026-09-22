@@ -2,7 +2,7 @@
   "securities": [
     {
       "ticker": "SPY",
-      "security_name": "SPDR S&P 500 ETF Trust",
+      "security_name": "State Street SPDR S&P 500 ETF Trust",
       "current_weight": 60,
       "returns": [
         0.008055356901086715,
@@ -126,7 +126,7 @@
         0.05276607459037664,
         0.05619255990795887
       ],
-      "dividend_yield": 1.3
+      "dividend_yield": 0.99
     },
     {
       "ticker": "AGG",
@@ -254,7 +254,7 @@
         0.0124294990055728,
         0.008137422515605749
       ],
-      "dividend_yield": 3.2
+      "dividend_yield": 3.97
     },
     {
       "ticker": "GLD",

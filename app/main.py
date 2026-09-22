@@ -44,9 +44,9 @@ app.add_middleware(
 )
 
 SECURITY_MASTER = {
-    "SPY": "SPDR S&P 500 ETF Trust",
+    "SPY": "State Street SPDR S&P 500 ETF Trust",
     "IEFA": "iShares Core MSCI EAFE ETF",
-    "VEA": "Vanguard FTSE Developed Markets ETF",
+    "VEA": "Vanguard Developed Markets Index Fund;ETF",
     "AGG": "iShares Core US Aggregate Bond ETF",
     "GLD": "SPDR Gold Shares",
     "DPG": "Duff & Phelps Utility and Infrastructure Fund Inc",

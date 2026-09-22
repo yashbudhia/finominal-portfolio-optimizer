@@ -126,7 +126,7 @@
         0.021621025911561592,
         0.0597484432322486
       ],
-      "dividend_yield": 2.8
+      "dividend_yield": 3.28
     },
     {
       "ticker": "GLD",
@@ -382,11 +382,11 @@
         0.0124294990055728,
         0.008137422515605749
       ],
-      "dividend_yield": 3.2
+      "dividend_yield": 3.97
     },
     {
       "ticker": "VEA",
-      "security_name": "Vanguard FTSE Developed Markets ETF",
+      "security_name": "Vanguard Developed Markets Index Fund;ETF",
       "current_weight": 20,
       "returns": [
         0.009089816823748464,
@@ -510,11 +510,11 @@
         0.025264219991754558,
         0.05405075641945216
       ],
-      "dividend_yield": 2.9
+      "dividend_yield": 2.03
     },
     {
       "ticker": "SPY",
-      "security_name": "SPDR S&P 500 ETF Trust",
+      "security_name": "State Street SPDR S&P 500 ETF Trust",
       "current_weight": 20,
       "returns": [
         0.008055356901086715,
@@ -638,7 +638,7 @@
         0.05276607459037664,
         0.05619255990795887
       ],
-      "dividend_yield": 1.3
+      "dividend_yield": 0.99
     }
   ],
   "optimization_strategy": "optimize_factor_exposure",

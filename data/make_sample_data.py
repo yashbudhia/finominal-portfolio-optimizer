@@ -18,13 +18,15 @@ import numpy as np
 
 TICKERS = ["SPY", "IEFA", "VEA", "AGG", "GLD"]
 NAMES = {
-    "SPY": "SPDR S&P 500 ETF Trust",
+    "SPY": "State Street SPDR S&P 500 ETF Trust",
     "IEFA": "iShares Core MSCI EAFE ETF",
-    "VEA": "Vanguard FTSE Developed Markets ETF",
+    "VEA": "Vanguard Developed Markets Index Fund;ETF",
     "AGG": "iShares Core US Aggregate Bond ETF",
     "GLD": "SPDR Gold Shares",
 }
-DIV_YIELDS = {"SPY": 1.30, "IEFA": 2.80, "VEA": 2.90, "AGG": 3.20, "GLD": 0.0}
+# Dividend yields from the assignment file (Image 1). GLD cell was blank -> 0.0
+# so the Min Dividend Yield constraint math still works.
+DIV_YIELDS = {"SPY": 0.99, "IEFA": 3.28, "VEA": 2.03, "AGG": 3.97, "GLD": 0.0}
 
 # monthly means (~ SPY 10% ann, AGG 3% ann, ...)
 MEANS = np.array([0.008, 0.005, 0.0052, 0.0025, 0.004])

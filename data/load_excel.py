@@ -1,78 +1,111 @@
-"""Convert the assignment Excel file into an /optimize request body.
+"""Convert the assignment's Data.xlsx into date-indexed JSON history.
 
-The assignment ships historical returns + factor returns + dividend yields in
-Excel. Sheet/column names may vary, so this is a starting template: point it
-at your file, adjust sheet names, then run:
+The file ships three sheets:
 
-    python data/load_excel.py path/to/history.xlsx --weights SPY=60,AGG=30,GLD=10
+    Fund Info      ticker | fund_name | dividend_yield      (yield as decimal)
+    Fund Returns   date | total_return | ticker             (long format, DAILY)
+    Factor Returns date | total_return | index_ticker        (Momentum/Value/Size)
 
-It prints a JSON request body you can POST to /api/v1/optimize.
+Returns are DAILY and each fund has a different inception date, so series are
+kept date-indexed here and aligned per-scenario by build_cases.py.
+
+    python data/load_excel.py                    # writes data/real_history.json
+    python data/load_excel.py --xlsx other.xlsx  # different source file
 """
 
 from __future__ import annotations
 
 import argparse
 import json
-import sys
+from pathlib import Path
 
 import pandas as pd
 
+HERE = Path(__file__).resolve().parent
+FACTOR_NAMES = {
+    "Momentum Factor": "momentum",
+    "Value Factor": "value",
+    "Size Factor": "size",
+}
+# Daily observations -> annualize with trading days, not months.
+PERIODS_PER_YEAR = 252
 
-def parse_weights(spec: str) -> dict[str, float]:
-    out: dict[str, float] = {}
-    for part in spec.split(","):
-        t, w = part.split("=")
-        out[t.strip().upper()] = float(w)
-    return out
+
+def load(xlsx: Path) -> dict:
+    info = pd.read_excel(xlsx, sheet_name="Fund Info")
+    rets = pd.read_excel(xlsx, sheet_name="Fund Returns")
+    facs = pd.read_excel(xlsx, sheet_name="Factor Returns")
+
+    info["ticker"] = info["ticker"].astype(str).str.strip().str.upper()
+    # dividend_yield is a decimal in the file (0.03278); the API takes percent.
+    # GLD's cell is blank -> 0.0 so the min-dividend-yield constraint still works.
+    yields = {
+        r.ticker: round(float(r.dividend_yield) * 100.0, 4)
+        if pd.notna(r.dividend_yield)
+        else 0.0
+        for r in info.itertuples()
+    }
+    names = {r.ticker: str(r.fund_name).strip() for r in info.itertuples()}
+
+    rets["ticker"] = rets["ticker"].astype(str).str.strip().str.upper()
+    rets["date"] = pd.to_datetime(rets["date"])
+    wide = (
+        rets.pivot_table(index="date", columns="ticker", values="total_return")
+        .sort_index()  # source file is newest-first
+    )
+
+    funds = {}
+    for t in wide.columns:
+        s = wide[t].dropna()
+        funds[t] = {
+            "security_name": names.get(t, t),
+            "dividend_yield": yields.get(t, 0.0),
+            "dates": [d.strftime("%Y-%m-%d") for d in s.index],
+            "returns": [float(x) for x in s.values],
+        }
+
+    facs["index_ticker"] = facs["index_ticker"].astype(str).str.strip()
+    facs["date"] = pd.to_datetime(facs["date"])
+    fwide = (
+        facs.pivot_table(index="date", columns="index_ticker", values="total_return")
+        .rename(columns=FACTOR_NAMES)
+        .sort_index()
+    )
+    missing = [k for k in ("momentum", "value", "size") if k not in fwide.columns]
+    if missing:
+        raise SystemExit(f"Factor Returns sheet is missing {missing}; found {list(fwide.columns)}")
+    fwide = fwide[["momentum", "value", "size"]].dropna()
+
+    return {
+        "source": xlsx.name,
+        "periods_per_year": PERIODS_PER_YEAR,
+        "funds": funds,
+        "factors": {
+            "dates": [d.strftime("%Y-%m-%d") for d in fwide.index],
+            "momentum": [float(x) for x in fwide["momentum"].values],
+            "value": [float(x) for x in fwide["value"].values],
+            "size": [float(x) for x in fwide["size"].values],
+        },
+    }
 
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("xlsx", help="Path to assignment Excel file")
-    ap.add_argument("--weights", default="SPY=20,IEFA=20,VEA=20,AGG=20,GLD=20")
-    ap.add_argument("--strategy", default="minimize_volatility")
-    ap.add_argument("--returns-sheet", default=0, help="Sheet with fund returns (Date + tickers as columns)")
-    ap.add_argument("--factors-sheet", default=1, help="Sheet with Momentum/Value/Size columns")
-    ap.add_argument("--yields", default="", help="Optional 'SPY=1.3,AGG=3.2,...'")
+    ap.add_argument("--xlsx", default=str(HERE / "Data.xlsx"))
+    ap.add_argument("--out", default=str(HERE / "real_history.json"))
     args = ap.parse_args()
 
-    rets = pd.read_excel(args.xlsx, sheet_name=args.returns_sheet)
-    # Assume first column is Date; remaining columns are tickers.
-    tickers = [c for c in rets.columns if str(c).lower() != "date"]
-    weights = parse_weights(args.weights)
-    yields = parse_weights(args.yields) if args.yields else {}
+    hist = load(Path(args.xlsx))
+    Path(args.out).write_text(json.dumps(hist))
 
-    securities = []
-    for t in tickers:
-        s = rets[t].dropna().astype(float).tolist()
-        # Excel may store percents (1.5 == 1.5%) or decimals; normalize >1 to percent.
-        if s and max(abs(x) for x in s) > 1.0:
-            s = [x / 100.0 for x in s]
-        securities.append(
-            {
-                "ticker": str(t).upper(),
-                "current_weight": float(weights.get(str(t).upper(), 0.0)),
-                "returns": s,
-                **({"dividend_yield": yields[str(t).upper()]} if str(t).upper() in yields else {}),
-            }
+    print(f"wrote {args.out}")
+    for t, f in sorted(hist["funds"].items()):
+        print(
+            f"  {t:5s} {len(f['returns']):5d} obs  "
+            f"{f['dates'][0]} -> {f['dates'][-1]}  div {f['dividend_yield']:.2f}%"
         )
-
-    body: dict = {
-        "securities": securities,
-        "optimization_strategy": args.strategy,
-        "periods_per_year": 12,
-    }
-    try:
-        fac = pd.read_excel(args.xlsx, sheet_name=args.factors_sheet)
-        cols = {str(c).lower(): c for c in fac.columns}
-        if all(k in cols for k in ("momentum", "value", "size")):
-            body["factor_data"] = {
-                k: fac[cols[k]].dropna().astype(float).tolist() for k in ("momentum", "value", "size")
-            }
-    except Exception as e:
-        print(f"warning: could not read factors sheet: {e}", file=sys.stderr)
-
-    print(json.dumps(body, indent=2))
+    fa = hist["factors"]
+    print(f"  factors {len(fa['dates']):5d} obs  {fa['dates'][0]} -> {fa['dates'][-1]}")
 
 
 if __name__ == "__main__":

@@ -5,3 +5,5 @@ venv/
 .pytest_cache/
 .env
 *.egg-info/
+# regenerable from data/Data.xlsx via `python data/load_excel.py`
+data/real_history.json

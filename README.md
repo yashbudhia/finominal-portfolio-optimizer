@@ -155,12 +155,14 @@ compared against this API. Tolerance in the brief is 0.1%.
 | 1 | Equal Weights | IEFA 50.00, SPY 50.00 | IEFA 50.00, SPY 50.00 | **exact** |
 | 2 | Risk Parity | AGG 79.88, VEA 20.12 | AGG 79.89, VEA 20.11 | 0.01 pp |
 | 3 | Minimize Volatility | AGG 91.21, SPY 6.92, GLD 1.87 | AGG 91.11, SPY 6.94, GLD 1.95 | 0.10 pp |
+| 3b | Minimize Drawdown | AGG 56.43, GLD 31.76, SPY 11.81 | AGG 56.47, GLD 31.72, SPY 11.80 | 0.04 pp |
 | 4 | Maximize Sharpe | SPY 69.39, GLD 30.61 | SPY 69.40, GLD 30.60 | 0.01 pp |
 | 5 | Max Sharpe + constraints | AGG 40.00, SPY 36.24, IEFA 13.76, GLD 5.00, VEA 5.00 | AGG 40.00, SPY 39.36, IEFA 10.64, GLD 5.00, VEA 5.00 | 3.12 pp — see below |
 | 6 | Factor Exposure (Momentum) | VEA 100.00 | GLD 100.00 | n/a — see below |
 
-Cases 1–4 match within tolerance. Cases 5 and 6 differ for input reasons that
-are identified and quantified below, not because of the optimizer.
+Cases 1–4 (including 3b) all match within the 0.1% tolerance. Cases 5 and 6
+differ for input reasons that are identified and quantified below, not because
+of the optimizer.
 
 ### Three conventions reverse-engineered from the tool
 
@@ -185,10 +187,19 @@ current portfolio (CAGR / vol / maxDD):
 Buy-and-hold reproduces their max drawdown to within 0.01 pp across every
 series tested, while annual rebalancing (their own dropdown setting) fits
 *worse* than buy-and-hold. Yet their optimized **weights** match a
-constant-weight objective exactly. This API reports constant-weight stats
-throughout, which is self-consistent with what it optimizes; the reported
-`current_portfolio` / `optimized_portfolio` blocks are therefore not directly
-comparable to the tool's results panel, though the weights are.
+constant-weight objective exactly.
+
+Case 3b settles this independently. Minimize Drawdown is the only
+*path-dependent* objective, so if the tool optimized buy-and-hold paths its
+weights would have to differ — instead they agree to 0.04 pp, while its
+reported drawdown for those same weights is −18.49% against our 15.65%. The
+optimizer works on constant-weight paths; only the results panel is
+buy-and-hold.
+
+This API reports constant-weight stats throughout, which is self-consistent
+with what it optimizes; the `current_portfolio` / `optimized_portfolio` blocks
+are therefore not directly comparable to the tool's results panel, though the
+weights are.
 
 **3. The shipped dividend yields are ~2.7% stale.** Scaling the yields in
 `Data.xlsx` by 1.027 reproduces the tool's case 5 answer to 0.25 pp. That

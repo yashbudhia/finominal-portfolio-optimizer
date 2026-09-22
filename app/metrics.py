@@ -50,7 +50,8 @@ def max_drawdown(series: np.ndarray) -> float:
     running_max = np.maximum.accumulate(cum)
     # avoid div-by-zero (should not happen since wealth starts at 1.0)
     dd = (cum - running_max) / np.where(running_max == 0, 1.0, running_max)
-    return float(-np.min(dd))
+    # abs() rather than negation so a no-drawdown series reports 0.0, not -0.0
+    return float(abs(np.min(dd)))
 
 
 def sharpe_ratio(
